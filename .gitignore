@@ -1,0 +1,44 @@
+.env
+.venv/
+.amazon-api-venv/
+venv/
+captures/
+bot_session/
+image_cache/
+tiktok_videos/
+logs/
+scratch/
+published_history.json
+pending_publications.json
+last_published.json
+storage_state.json
+storage_state_linux.json
+__pycache__/
+*.pyc
+*.mp4
+creatorsapi-python-sdk.zip
+apify_products.json
+tmp_*.py
+
+# Sesiones, cookies y perfiles de navegador
+core/flow_chrome_profile/
+storage_state*.json
+*_state*.json
+!user_state.json
+
+# Respaldos y archivos pesados
+backups/
+*.zip
+*.tar.gz
+
+# Syncthing y conflictos
+.stfolder/
+*.sync-conflict-*
+
+# Archivos temporales y capturas de depuración
+scratch_*.txt
+*.png
+!assets/*.png
+*.log
+bot.log
+*credentials*.csv

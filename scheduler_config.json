@@ -1,0 +1,53 @@
+{
+  "general": [
+    8,
+    12,
+    16,
+    20
+  ],
+  "use_custom": {
+    "youtube": false,
+    "telegram": true,
+    "facebook": false,
+    "fb_page": false,
+    "pinterest": false,
+    "tiktok": false,
+    "twitter": true,
+    "web": false
+  },
+  "custom": {
+    "telegram": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+    ],
+    "facebook": [],
+    "fb_page": [],
+    "pinterest": [],
+    "tiktok": [],
+    "youtube": [
+      15
+    ],
+    "twitter": [
+      8,
+      13,
+      15,
+      19,
+      21
+    ],
+    "web": []
+  }
+}

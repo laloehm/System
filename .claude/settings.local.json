@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "WebFetch(domain:developers.mercadolibre.com.mx)",
+      "PowerShell(Get-Process -Name \"brave\" -ErrorAction SilentlyContinue)",
+      "PowerShell($env:PYTHONIOENCODING = \"utf-8\"; cd \"C:\\\\Users\\\\eduardo.hernandez\\\\OneDrive - Valtech\\\\Documents\\\\System\"; C:\\\\Users\\\\eduardo.hernandez\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\python.exe -X utf8 manual_login.py)",
+      "PowerShell($env:PYTHONIOENCODING = \"utf-8\"; cd \"C:\\\\Users\\\\eduardo.hernandez\\\\OneDrive - Valtech\\\\Documents\\\\System\"; C:\\\\Users\\\\eduardo.hernandez\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\python.exe -X utf8 inspect_linkbuilder.py)",
+      "Bash(python -X utf8 affiliate_linker.py \"https://www.mercadolibre.com.mx/pantalla-smart-tv-32-pulgadas-tfl-android-tv-dled-hd-bluetooth-dolby-audio/p/MLM62369518\")",
+      "Bash(python -X utf8 affiliate_linker.py)",
+      "Bash(git commit -m 'Respaldo de seguridad antes de análisis arquitectónico *)",
+      "Bash(grep -n \"self\\\\\\\\.facebook_publisher\\\\|self\\\\\\\\.pinterest_publisher\\\\|self\\\\\\\\.telegram_publisher\\\\|self\\\\\\\\.web_publisher\\\\|self\\\\\\\\.tiktok_publisher\\\\|self\\\\\\\\.youtube_publisher\" \"c:\\\\Users\\\\eduardo.hernandez\\\\OneDrive - Valtech\\\\Documents\\\\System\\\\core\\\\orchestrator.py\")",
+      "Bash(git commit -m 'Refactor P1: Interfaz base Publisher y publishers normalizados *)",
+      "Bash(git commit -m 'Refactor P1: Actualizar calls en Orchestrator a usar interfaz publish\\(\\) *)",
+      "Bash(git commit -m 'Refactor P2.1: Eliminar duplicación de reintentos de Facebook *)",
+      "Bash(git commit -m 'Refactor P2.2: Crear StorageManager centralizado *)",
+      "Bash(git commit -m 'Refactor P3: Optimizaciones de Configuración y Constants *)",
+      "Bash(awk '/async def run_publication/,/^    async def|^    def / {print NR\": \"$0}' \"c:\\\\Users\\\\eduardo.hernandez\\\\OneDrive - Valtech\\\\Documents\\\\System\\\\core\\\\orchestrator.py\")",
+      "Bash(git commit -m 'Refactor P4 Fase 1: Plan y estructura para dividir run_publication\\(\\) *)",
+      "PowerShell(Get-ChildItem -Path . -Force | Select-Object Name, @{N='Type';E={if\\($_.PSIsContainer\\){'Dir'}else{'File'}}}, Length | Sort-Object Type, Name | Format-Table -AutoSize)",
+      "PowerShell(Get-Command python -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Command py -ErrorAction SilentlyContinue)",
+      "PowerShell(\\(Get-Command python\\).Source)",
+      "PowerShell(Remove-Item -LiteralPath \".\\\\scratch\" -Recurse -Force -Confirm:$false)",
+      "PowerShell(py -c \"print\\('hello', 1+1\\)\")"
+    ]
+  }
+}

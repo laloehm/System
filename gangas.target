@@ -1,0 +1,7 @@
+[Unit]
+Description=Gangas Master System Target (Bot, API, Web)
+Wants=gangas_api.service gangas_web.service amazon_bot.service
+After=network.target
+
+[Install]
+WantedBy=multi-user.target

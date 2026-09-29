@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -X utf8 build_site.py)",
+      "Bash(python -X utf8 -c ' *)",
+      "Bash(ls -la public/images/MLM2291439127.png)",
+      "Bash(python -c ' *)",
+      "Bash(schtasks /query /tn \"AfiliadorScraper_ML\" /fo LIST /v)",
+      "Bash(python -c \"import sys; sys.path.insert\\(0, '.'\\); from dotenv import load_dotenv; load_dotenv\\(\\); from core.telegram_bot import TelegramBot; from core.orchestrator import Orchestrator; print\\('Imports OK'\\)\")",
+      "Bash(python -m py_compile core/telegram_bot.py)",
+      "Bash(python -m py_compile core/orchestrator.py)",
+      "Bash(python -m py_compile publishers/facebook_publisher.py)",
+      "Bash(python -m py_compile publishers/web_publisher.py)",
+      "Bash(python -m py_compile ml_offers_scraper.py)",
+      "Bash(python -m py_compile scrapers/ml_scraper.py)",
+      "WebSearch",
+      "Read(//c/Users/eduardo.hernandez/.claude/projects/c--Users-eduardo-hernandez-OneDrive---Valtech-Documents-System/memory/**)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\eduardo.hernandez\\.claude\\projects\\c--Users-eduardo-hernandez-OneDrive---Valtech-Documents-System\\memory"
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+[Unit]
+Description=Cloudflare Tunnel (gangasmx)
+After=network-online.target
+Wants=network-online.target
+PartOf=gangas.target
+
+[Service]
+Type=simple
+User=laloehm
+ExecStart=/usr/local/bin/cloudflared tunnel run gangasmx
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=gangas-tunnel
+
+[Install]
+WantedBy=multi-user.target

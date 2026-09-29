@@ -1,0 +1,39 @@
+{
+  "active_networks": {
+    "facebook": true,
+    "facebook_bebes": false,
+    "facebook_pets": false,
+    "facebook_moda": false,
+    "facebook_tenis": false,
+    "fb_page": true,
+    "telegram": true,
+    "twitter": true,
+    "youtube": false,
+    "web": true,
+    "pinterest": false,
+    "tiktok": false
+  },
+  "video_mode": "normal",
+  "paused": false,
+  "fb_paused": false,
+  "mode": "both",
+  "queue_mode": true,
+  "fb_split_blocks": 7,
+  "fb_bebes_split_blocks": 2,
+  "fb_gen_block_index": 4,
+  "fb_bebes_block_index": 1,
+  "fb_pets_block_index": 0,
+  "fb_tenis_block_index": 0,
+  "fb_moda_block_index": 0,
+  "allow_duplicate_products": false,
+  "fb_pets_split_blocks": 1,
+  "fb_tenis_split_blocks": 1,
+  "fb_moda_split_blocks": 1,
+  "video_niches": {
+    "general": true,
+    "baby": false,
+    "pets": true,
+    "moda": true,
+    "tenis": true
+  }
+}

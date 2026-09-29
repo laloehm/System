@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-surface-container-low: #0d1c2d;
+  --color-inverse-primary: #00668a;
+  --color-tertiary-container: #a9b1ca;
+  --color-surface-variant: #273647;
+  --color-background: #051424;
+  --color-on-tertiary-fixed: #131b2e;
+  --color-inverse-surface: #d4e4fa;
+  --color-tertiary-fixed-dim: #bec6e0;
+  --color-secondary-container: #3e495d;
+  --color-on-secondary-fixed: #111c2d;
+  --color-surface-container-high: #1c2b3c;
+  --color-on-tertiary-container: #3c4459;
+  --color-on-surface: #d4e4fa;
+  --color-on-secondary-container: #aeb9d0;
+  --color-error: #ffb4ab;
+  --color-tertiary: #c5cce6;
+  --color-on-secondary-fixed-variant: #3c475a;
+  --color-primary: #8ed5ff;
+  --color-surface-container-lowest: #010f1f;
+  --color-primary-container: #38bdf8;
+  --color-surface-tint: #7bd0ff;
+  --color-secondary-fixed: #d8e3fb;
+  --color-on-primary: #00354a;
+  --color-secondary: #bcc7de;
+  --color-on-primary-container: #004965;
+  --color-tertiary-fixed: #dae2fd;
+  --color-on-background: #d4e4fa;
+  --color-secondary-fixed-dim: #bcc7de;
+  --color-on-surface-variant: #bdc8d1;
+  --color-surface-dim: #051424;
+  --color-on-tertiary-fixed-variant: #3f465c;
+  --color-on-secondary: #263143;
+  --color-inverse-on-surface: #233143;
+  --color-surface-bright: #2c3a4c;
+  --color-on-primary-fixed: #001e2c;
+  --color-outline-variant: #3e484f;
+  --color-surface-container: #122131;
+  --color-surface: #051424;
+  --color-on-error: #690005;
+  --color-on-primary-fixed-variant: #004c69;
+  --color-primary-fixed-dim: #7bd0ff;
+  --color-on-error-container: #ffdad6;
+  --color-outline: #87929a;
+  --color-surface-container-highest: #273647;
+  --color-primary-fixed: #c4e7ff;
+  --color-on-tertiary: #283044;
+  --color-error-container: #93000a;
+  --spacing-margin-mobile: 16px;
+  --spacing-xs: 8px;
+  --spacing-xl: 32px;
+  --spacing-sm: 12px;
+  --spacing-lg: 24px;
+  --spacing-gutter: 16px;
+  --spacing-base: 4px;
+  --spacing-md: 16px;
+  --spacing-margin-desktop: 48px;
+  --radius: 0.125rem;
+  --radius-lg: 0.25rem;
+  --radius-xl: 0.5rem;
+  --radius-full: 0.75rem;
+  --font-headline-lg: var(--font-hanken-grotesk), sans-serif;
+  --font-headline-md: var(--font-hanken-grotesk), sans-serif;
+  --font-body-lg: var(--font-hanken-grotesk), sans-serif;
+  --font-body-sm: var(--font-hanken-grotesk), sans-serif;
+  --font-label-caps: var(--font-jetbrains-mono), monospace;
+  --font-status-indicator: var(--font-jetbrains-mono), monospace;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-on-background);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.button-press:active {
+  transform: scale(0.98);
+  filter: brightness(1.2);
+}
+
+/* Material Symbols adjustments */
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 24;
+}

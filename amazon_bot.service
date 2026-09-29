@@ -1,0 +1,33 @@
+[Unit]
+Description=Amazon Deal Bot Service
+# Asegura que el servicio espere a que la red esté lista
+After=network-target
+PartOf=gangas.target
+
+[Service]
+# Tipo de servicio simple
+Type=simple
+Environment=PYTHONUNBUFFERED=1
+
+# Tu usuario de Linux (ajustar si es diferente)
+User=laloehm
+
+# Ruta absoluta a la carpeta del proyecto en Linux
+WorkingDirectory=/home/laloehm/Desktop/System-Afiliados
+
+# Ruta absoluta al ejecutor de Python dentro del entorno virtual
+ExecStart=/home/laloehm/Desktop/System-Afiliados/.venv/bin/python3 amazon_deal_bot.py --schedule --headless
+
+# Reiniciar automáticamente si el script falla o se cierra
+Restart=always
+# Esperar 10 segundos antes de cada reinicio
+RestartSec=10
+
+# Estándar para logs de Systemd
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=amazon-deal-bot
+
+[Install]
+# Permite que el servicio se inicie en el arranque normal (multi-usuario)
+WantedBy=multi-user.target

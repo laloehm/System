@@ -1,0 +1,8 @@
+{
+  "general": true,
+  "amazon": true,
+  "moda": false,
+  "pets": false,
+  "baby": false,
+  "tenis": false
+}

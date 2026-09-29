@@ -1,0 +1,87 @@
+================================================================
+INSTRUCCIONES PARA VALIDACIÓN CON GEMINI
+================================================================
+
+ARCHIVO PRINCIPAL:
+  -> GEMINI_VALIDATION_PROMPT.md (creado en la raíz del proyecto)
+
+PASOS:
+
+1. COPIAR EL PROMPT
+   - Abre GEMINI_VALIDATION_PROMPT.md
+   - Copia TODO el contenido
+
+2. ENVIAR A GEMINI (elige uno):
+   
+   OPCION A: En claude.ai/code
+   - Abre https://claude.ai/code (o usa VS Code Extension)
+   - Abre el proyecto GangasMX en la carpeta actual
+   - Pega el prompt en el chat
+   - Gemini tendrá acceso a los archivos
+   
+   OPCION B: En gemini.google.com (Google Gemini)
+   - Abre https://gemini.google.com
+   - Pega el prompt
+   - Luego copiar-pega el contenido de los 3 archivos:
+     * core/telegram_bot.py (líneas 1400-1550)
+     * publishers/facebook_publisher.py (completo)
+     * core/scheduler.py (líneas 140-500)
+
+3. ESPERAR RESPUESTA
+   Gemini debería entregar:
+   - Matriz de validación (7 aspectos)
+   - Lista de issues (o confirmación de OK)
+   - Veredicto final
+
+4. TRAER RESULTADO AQUÍ
+   - Copia la respuesta de Gemini
+   - Pégala en un nuevo archivo o comparte conmigo
+
+================================================================
+ARCHIVOS INVOLUCRADOS EN LA VALIDACIÓN:
+================================================================
+
+core/telegram_bot.py
+  - Líneas críticas: 1409-2350 (original)
+  - Ahora: ~1500 líneas (router + 4 handlers)
+  - Métodos: handle_command(), _handle_callback_query(), 
+             _handle_text_command(), _handle_active_state()
+
+publishers/facebook_publisher.py
+  - Líneas críticas: 41-481 (original)
+  - Ahora: ~594 líneas (router + 15 helpers)
+  - Método: post_to_group() (es el más crítico)
+
+core/scheduler.py
+  - Líneas críticas: 149-493 (original)
+  - Ahora: ~480 líneas (+ 4 helpers)
+  - Método: run_worker() (24/7 loop)
+
+================================================================
+QUÉ VALIDAR (RESUMEN):
+================================================================
+
+[  ] Correctness - ¿Cada método hace lo que hacía antes?
+[  ] Lógica no perdida - ¿Edge cases se mantienen?
+[  ] Cascadas - ¿Routers funcionan en todos los casos?
+[  ] Error handling - ¿Excepciones se propagan bien?
+[  ] Interfaz pública - ¿Firmas de métodos no cambiaron?
+[  ] Performance - ¿Hay overhead o N+1?
+[  ] Bugs nuevos - ¿Se introdujeron issues?
+
+================================================================
+NOTA IMPORTANTE:
+================================================================
+
+Si Gemini encuentra issues CRITICOS o IMPORTANTES:
+1. Documenta el issue exactamente
+2. Proporciona línea y código donde falla
+3. Sugiere el fix
+4. Entonces re-ejecuto el fix y volvemos a validar
+
+Si todo está OK:
+1. Gemini lo confirma
+2. El código se puede pusher a producción
+3. Scheduler puede correr en VPS
+
+================================================================

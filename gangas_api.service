@@ -1,0 +1,19 @@
+[Unit]
+Description=Gangas API Service
+After=network.target
+PartOf=gangas.target
+
+[Service]
+Type=simple
+Environment=PYTHONUNBUFFERED=1
+User=laloehm
+WorkingDirectory=/home/laloehm/Desktop/System-Afiliados
+ExecStart=/home/laloehm/Desktop/System-Afiliados/.venv/bin/python3 -m uvicorn api.main:app --host 0.0.0.0 --port 8001
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=gangas-api
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,19 @@
+[Unit]
+Description=Gangas Web Panel (Next.js)
+After=network.target
+PartOf=gangas.target
+
+[Service]
+Type=simple
+User=laloehm
+WorkingDirectory=/home/laloehm/Desktop/System-Afiliados/web-panel
+# Si usas npm, la ruta a npm está en /usr/bin/npm o donde esté instalado tu Node
+ExecStart=/usr/bin/npm run dev -- -H 0.0.0.0
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=gangas-web
+
+[Install]
+WantedBy=multi-user.target
