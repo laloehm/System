@@ -62,33 +62,45 @@ def _normalize_price(raw: str) -> str:
 
 
 async def _scrape_deals_page(page, search_url: str) -> list[str]:
-    await page.goto(search_url, wait_until="commit", timeout=60000)
-    await page.wait_for_timeout(4000)
+    try:
+        await page.goto(search_url, wait_until="commit", timeout=45000)
+        await page.wait_for_timeout(4000)
 
-    for _ in range(8):
-        await page.mouse.wheel(0, 2500)
-        await page.wait_for_timeout(1200)
+        for _ in range(8):
+            await page.mouse.wheel(0, 2500)
+            await page.wait_for_timeout(1200)
 
-    urls = []
-    for selector in ["a.a-link-normal[href*='/dp/']", "[data-testid='grid-auto-grid'] a"]:
-        for el in await page.query_selector_all(selector):
-            href = await el.get_attribute("href")
-            if href and "/dp/" in href:
-                m = re.search(r"/dp/([A-Z0-9]{10})", href)
-                if m and m.group(1) not in [re.search(r"/dp/([A-Z0-9]{10})", u).group(1) for u in urls if "/dp/" in u]:
-                    urls.append(f"https://www.amazon.com.mx/dp/{m.group(1)}")
+        urls = []
+        for selector in ["a.a-link-normal[href*='/dp/']", "[data-testid='grid-auto-grid'] a"]:
+            for el in await page.query_selector_all(selector):
+                href = await el.get_attribute("href")
+                if href and "/dp/" in href:
+                    m = re.search(r"/dp/([A-Z0-9]{10})", href)
+                    if m and m.group(1) not in [re.search(r"/dp/([A-Z0-9]{10})", u).group(1) for u in urls if "/dp/" in u]:
+                        urls.append(f"https://www.amazon.com.mx/dp/{m.group(1)}")
 
-    random.shuffle(urls)
-    return urls[:40]
+        random.shuffle(urls)
+        return urls[:40]
+    except Exception as e:
+        print(f"[AMAZON] Error al cargar página de resultados ({search_url}): {e}")
+        return []
 
 
 async def _scrape_product(page, asin: str, url: str) -> dict | None:
-    await page.goto(url, wait_until="commit", timeout=60000)
+    try:
+        await page.goto(url, wait_until="commit", timeout=45000)
+    except Exception as e:
+        print(f"[AMAZON] Error de red al navegar a {asin} ({url}): {e}")
+        return None
+
     try:
         await page.wait_for_selector("#productTitle", timeout=10000)
     except Exception:
-        if "sorry" in (await page.title()).lower():
-            print(f"[AMAZON] CAPTCHA detectado en {asin}")
+        try:
+            if "sorry" in (await page.title()).lower():
+                print(f"[AMAZON] CAPTCHA detectado en {asin}")
+        except Exception:
+            pass
         return None
 
     async def get_price(selector):
@@ -349,7 +361,12 @@ async def run(notify_fn=None, keyword_override: str = None) -> int:
                         print(f"[AMAZON] Procesando {asin} (Página {page_num})...")
                         await asyncio.sleep(random.uniform(3, 6))
 
-                        product = await _scrape_product(page, asin, url)
+                        try:
+                            product = await _scrape_product(page, asin, url)
+                        except Exception as e:
+                            print(f"[AMAZON] Error inesperado en producto {asin}: {e}")
+                            product = None
+
                         if not product:
                             continue
 
@@ -394,7 +411,12 @@ async def run(notify_fn=None, keyword_override: str = None) -> int:
                     print(f"[AMAZON] Procesando {asin}...")
                     await asyncio.sleep(random.uniform(3, 6))
 
-                    product = await _scrape_product(page, asin, url)
+                    try:
+                        product = await _scrape_product(page, asin, url)
+                    except Exception as e:
+                        print(f"[AMAZON] Error inesperado en producto {asin}: {e}")
+                        product = None
+
                     if not product:
                         continue
 
