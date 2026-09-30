@@ -409,10 +409,14 @@ async def get_scraping():
         "min_discount_pct": 20,
         "min_strict_savings": 150
     }
-    return read_json(SCRAPING_FILE, default=default_config)
+    cfg = read_json(SCRAPING_FILE, default=default_config)
+    cursors = read_json(os.path.join(BASE_DIR, "scraping_cursors.json"), default={})
+    cfg["_cursors"] = cursors
+    return cfg
 
 @app.put("/api/config/scraping")
 async def update_scraping(payload: Dict[str, Any] = Body(...)):
+    payload.pop("_cursors", None)
     config = read_json(SCRAPING_FILE, default={})
     config.update(payload)
     write_json(SCRAPING_FILE, config)

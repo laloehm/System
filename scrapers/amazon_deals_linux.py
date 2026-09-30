@@ -258,7 +258,7 @@ async def _scrape_product(page, asin: str, url: str) -> dict | None:
     }
 
 
-async def run(notify_fn=None) -> int:
+async def run(notify_fn=None, keyword_override: str = None) -> int:
     """Corre el scraper y retorna el número de productos importados."""
     if not PARTNER_TAG:
         msg = "⚠️ AMAZON_PARTNER_TAG no configurado en .env — links sin tag de afiliado"
@@ -306,9 +306,13 @@ async def run(notify_fn=None) -> int:
         page = await context.new_page()
 
         try:
-            # Leer configuración de palabras clave desde el panel web
+            # Obtener palabra clave del turno (o usar keyword_override)
             scraping_config = json_load(os.path.join(Config.BASE_DIR, "scraping_config.json"), default={"general": "", "amazon_pages": 1})
-            keyword = scraping_config.get("general", "").strip()
+            if keyword_override:
+                keyword = keyword_override.strip()
+            else:
+                from core.apify_refiller import get_scraping_keyword
+                keyword = get_scraping_keyword("general", "tecnologia", advance=True)
             
             # Páginas a scrapear de Amazon (cada 'página' equivale a ~10 productos en este script para no tardar tanto)
             amazon_pages = int(scraping_config.get("amazon_pages", DEFAULT_AMAZON_PAGES))
@@ -316,7 +320,7 @@ async def run(notify_fn=None) -> int:
             
             if keyword and keyword.lower() not in ["", "ofertas", "deals"]:
                 from urllib.parse import quote
-                print(f"[AMAZON] Buscando por palabra clave del Panel Web: '{keyword}' en {amazon_pages} páginas")
+                print(f"[AMAZON] Buscando por palabra clave en turno: '{keyword}' en {amazon_pages} páginas")
                 
                 for page_num in range(1, amazon_pages + 1):
                     if len(imported) >= target_products:

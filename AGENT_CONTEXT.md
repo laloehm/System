@@ -393,6 +393,15 @@ systemctl restart amazon_bot
 
 ## 13. HISTORIAL DE CAMBIOS (Septiembre 2026)
 
+### 30-Sep-2026 — Ciclos Rotativos Secuenciales de Scraping por Nicho (Round-Robin) ✅
+- **`core/apify_refiller.py`**:
+  - `get_scraping_keyword(niche, default, advance=False)`: Implementa rotación Round-Robin secuencial basada en términos separados por coma (e.g. `laptops gamer, monitores, herramientas`).
+  - Persistencia de cursores en `scraping_cursors.json` mediante escritura atómica (`json_save_atomic`), asegurando persistencia entre reinicios.
+  - `is_scraper_enabled(niche, scraper_status)`: Valida el estado del auto-scraper antes de disparar el refill o rotar el cursor. Si un scraper está en pausa, no consume búsquedas ni adelanta el turno.
+- **`scrapers/amazon_deals_linux.py`**: Acepta `keyword_override` para scraping en Linux y toma el término activo del ciclo general.
+- **`api/main.py`**: Inyecta `_cursors` en `GET /api/config/scraping` y lo filtra en `PUT /api/config/scraping` para no ensuciar la configuración estática.
+- **`web-panel/src/app/settings/page.tsx`**: Interfaz visual con píldoras dinámicas por término, flechas de flujo `→`, indicador animado pulsante del término en turno y badge de alerta `⏸️ Auto-Scraper Pausado` si el scraper del nicho no está activo.
+
 ### 27-Sep-2026 — Sistema de Expiración de Historial y Re-aprobación a las 3 Semanas (TTL 21 Días) ✅
 - **`core/history_manager.py` (NUEVO)**: Módulo centralizado para gestión de historial con marcas de tiempo ISO. Migró `published_history.json` de lista plana a `{identificador: iso_timestamp}`. Rescató timestamps reales de los últimos 200 productos desde `website_db.json` y `last_published.json`, liberando los productos antiguos (>45 días) como elegibles para re-publicación.
 - **Filtro de Historial Reciente (`load_recent_history`)**: Integrado en `core/orchestrator.py`, `core/scheduler.py`, `core/apify_refiller.py`, `scrapers/amazon_deals_linux.py`, `api/main.py` y `core/telegram_bot.py`. Los productos solo se consideran duplicados durante su ventana de TTL (por defecto 21 días / 3 semanas).

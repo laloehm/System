@@ -691,3 +691,27 @@ Se investigó y solucionó la publicación anómala de productos con precio de o
    - **Filtro Dinámico `load_recent_history()`:** Todos los componentes (`core/orchestrator.py`, `core/scheduler.py`, `core/apify_refiller.py`, `scrapers/amazon_deals_linux.py`, `api/main.py` y `core/telegram_bot.py`) ahora evalúan duplicados únicamente contra publicaciones recientes (< 21 días).
    - **Elegibilidad de Re-aprobación:** Si un producto fue publicado hace más de 21 días, expira del filtro activo y queda 100% elegible para volver a entrar a la cola y ser publicado si vuelve a detectarse con oferta válida.
    - **Registro Atómico:** Cada nueva publicación actualiza el timestamp en `published_history.json` con la fecha y hora de la nueva publicación, reiniciando su ventana de 21 días.
+
+---
+
+### 17.12 Ciclos Rotativos Secuenciales de Términos de Scraping (30 Septiembre 2026) ✅
+
+1. **Objetivo y Necesidad:**
+   - Previamente, cada nicho tenía un único término fijo de búsqueda en `scraping_config.json` (ej. "tecnologia", "bebes", "perros"). Para diversificar las ofertas y no saturar las colas con el mismo tipo de producto, se implementó un sistema de rotación secuencial cíclica (Round-Robin) entre múltiples términos configurables.
+
+2. **Solución Implementada:**
+   - **Formato Simple Separado por Comas:** En el Panel Web (`/settings`), el usuario puede ingresar múltiples términos separados por comas para cualquier nicho (ej. `laptops gamer, monitores, herramientas dewalt, smart tv`).
+   - **Rotación Round-Robin Persistente (`core/apify_refiller.py`):**
+     - La función `get_scraping_keyword(niche, default, advance=False)` extrae la lista de términos limpios, obtiene el cursor actual guardado en `scraping_cursors.json` y calcula el índice mediante módulo (`cursor % len(terms)`).
+     - Si `advance=True`, incrementa el cursor secuencialmente (`(idx + 1) % len(terms)`) y lo guarda de forma atómica con `json_save_atomic`.
+     - Sobrevive a reinicios del bot y de los servicios sin perder el turno.
+   - **Respeto Estricto de Estado de Pausa:**
+     - La función `is_scraper_enabled(niche, scraper_status)` valida si el scraper de ese nicho está activo en `scraper_status.json`.
+     - Si un scraper está en pausa/desactivado, el scheduler lo omite y **el cursor NO rota ni se consume**, preservando el turno exacto para cuando se reactive.
+   - **Integración con Amazon Scraper (`scrapers/amazon_deals_linux.py`):**
+     - Acepta el parámetro `keyword_override` pasado desde `_check_amazon_refill` para buscar en Amazon Deals las ofertas del término rotativo que corresponde en el nicho general.
+   - **Visualización en el Web Panel (`web-panel/src/app/settings/page.tsx`):**
+     - Muestra píldoras interactivas con cada término del ciclo y flechas de secuencia (`Término 1 → Término 2 → Término 3`).
+     - Indicador visual animado pulsante en el término que se encuentra actualmente en turno.
+     - Badge informativo `⏸️ Auto-Scraper Pausado` si el auto-scraper del nicho se encuentra desactivado.
+

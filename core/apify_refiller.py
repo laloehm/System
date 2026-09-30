@@ -12,30 +12,93 @@ from datetime import datetime, timedelta
 from core.config import Config
 from core.storage import json_load, json_save_atomic
 
-def get_scraping_keyword(niche: str, default: str) -> str:
-    import random
-    path = os.path.join(Config.BASE_DIR, "scraping_config.json")
-    
-    # Map old english niche tags to new spanish keys in json
-    alias_map = {"baby": "bebes", "pets": "mascotas", "general": "general", "tenis": "tenis", "moda": "moda"}
-    json_key = alias_map.get(niche, niche)
+def is_scraper_enabled(niche: str, scraper_status: dict) -> bool:
+    """Verifica si el auto-scraper para un nicho está activado en scraper_status.json."""
+    if not scraper_status or not isinstance(scraper_status, dict):
+        return True
+    alias_map = {
+        "baby": ["baby", "bebes"],
+        "bebes": ["baby", "bebes"],
+        "pets": ["pets", "mascotas"],
+        "mascotas": ["pets", "mascotas"],
+        "general": ["general"],
+        "amazon": ["amazon"],
+        "tenis": ["tenis"],
+        "moda": ["moda"]
+    }
+    keys = alias_map.get(niche.lower(), [niche.lower()])
+    for k in keys:
+        if k in scraper_status:
+            return bool(scraper_status[k])
+    return True
 
+
+def get_scraping_keyword(niche: str, default: str, advance: bool = False) -> str:
+    """
+    Obtiene el término de búsqueda para un nicho dado.
+    Soporta múltiples términos separados por comas rotando secuencialmente (Round-Robin).
+    Si advance=True, incrementa y persiste el cursor hacia el siguiente término.
+    """
+    path = os.path.join(Config.BASE_DIR, "scraping_config.json")
+    cursors_path = os.path.join(Config.BASE_DIR, "scraping_cursors.json")
+
+    # Map old english niche tags to spanish keys in json
+    alias_map = {
+        "baby": "bebes", "pets": "mascotas", "general": "general",
+        "tenis": "tenis", "moda": "moda", "bebes": "bebes", "mascotas": "mascotas"
+    }
+    json_key = alias_map.get(niche.lower(), niche.lower())
+
+    terms = []
     try:
         if os.path.exists(path):
             with open(path, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                val = data.get(json_key)
-                if isinstance(val, dict):
-                    terms = val.get("search_terms", [])
-                    if terms:
-                        return random.choice(terms)
-                    return default
-                elif isinstance(val, str):
-                    return val
-                return os.getenv(f"APIFY_KEYWORD_{niche.upper()}", default)
+                val = data.get(json_key, "")
+                if isinstance(val, str) and val.strip():
+                    terms = [t.strip() for t in val.split(",") if t.strip()]
+                elif isinstance(val, list):
+                    terms = [str(t).strip() for t in val if str(t).strip()]
+                elif isinstance(val, dict):
+                    raw_terms = val.get("search_terms", [])
+                    terms = [str(t).strip() for t in raw_terms if str(t).strip()]
     except Exception as e:
-        print(f"[APIFY] Error leyendo scraping_config.json: {e}")
-    return os.getenv(f"APIFY_KEYWORD_{niche.upper()}", default)
+        print(f"[SCRAPING] Error leyendo scraping_config.json: {e}")
+
+    if not terms:
+        env_val = os.getenv(f"APIFY_KEYWORD_{niche.upper()}", default)
+        terms = [t.strip() for t in env_val.split(",") if t.strip()] if env_val else [default]
+
+    if not terms:
+        terms = [default]
+
+    # Cargar cursores persistentes
+    cursors = {}
+    try:
+        if os.path.exists(cursors_path):
+            with open(cursors_path, "r", encoding="utf-8") as f:
+                cursors = json.load(f)
+                if not isinstance(cursors, dict):
+                    cursors = {}
+    except Exception:
+        cursors = {}
+
+    current_idx = cursors.get(json_key, 0)
+    safe_idx = current_idx % len(terms)
+    chosen_term = terms[safe_idx]
+
+    if advance and len(terms) > 1:
+        next_idx = (safe_idx + 1) % len(terms)
+        cursors[json_key] = next_idx
+        try:
+            json_save_atomic(cursors_path, cursors, indent=2, ensure_ascii=False)
+            print(f"[ROTACION SCRAPING] Nicho '{json_key}': usando término [{safe_idx+1}/{len(terms)}] '{chosen_term}'. Próximo turno: '{terms[next_idx]}'")
+        except Exception as e:
+            print(f"[ROTACION SCRAPING] Error guardando cursor: {e}")
+    else:
+        print(f"[ROTACION SCRAPING] Nicho '{json_key}': término seleccionado '{chosen_term}' ({len(terms)} configurados)")
+
+    return chosen_term
 
 APIFY_BASE = "https://api.apify.com/v2"
 ACTOR_ID = "karamelo~mercadolibre-scraper-espanol-castellano"
@@ -55,27 +118,27 @@ FIELD_MAP = {
 
 NICHE_CONFIG = {
     "general": {
-        "keyword": lambda: get_scraping_keyword("general", "tecnologia"),
+        "keyword": lambda: get_scraping_keyword("general", "tecnologia", advance=True),
         "queue_file": lambda: Config.JSON_QUEUE_FILE,
         "niche_tag": "[CAT:GENERAL]",
     },
     "baby": {
-        "keyword": lambda: get_scraping_keyword("baby", "bebes"),
+        "keyword": lambda: get_scraping_keyword("baby", "bebes", advance=True),
         "queue_file": lambda: Config.JSON_QUEUE_BABY_FILE,
         "niche_tag": "baby",
     },
     "pets": {
-        "keyword": lambda: get_scraping_keyword("pets", "perros"),
+        "keyword": lambda: get_scraping_keyword("pets", "perros", advance=True),
         "queue_file": lambda: Config.JSON_QUEUE_PETS_FILE,
         "niche_tag": "pets",
     },
     "tenis": {
-        "keyword": lambda: get_scraping_keyword("tenis", "tenis deportivos"),
+        "keyword": lambda: get_scraping_keyword("tenis", "tenis deportivos", advance=True),
         "queue_file": lambda: getattr(Config, "JSON_QUEUE_TENIS_FILE", os.path.join(Config.BASE_DIR, "queue_tenis.json")),
         "niche_tag": "[CAT:TENIS]",
     },
     "moda": {
-        "keyword": lambda: get_scraping_keyword("moda", "ropa moda"),
+        "keyword": lambda: get_scraping_keyword("moda", "ropa moda", advance=True),
         "queue_file": lambda: getattr(Config, "JSON_QUEUE_MODA_FILE", os.path.join(Config.BASE_DIR, "queue_moda.json")),
         "niche_tag": "[CAT:MODA]",
     },
@@ -333,7 +396,7 @@ def _import_items(items: list, niche_tag: str, queue_file: str, history: set) ->
 
 async def _check_amazon_refill(orchestrator, history: set, now: datetime, status: dict, force: bool = False) -> None:
     """Rellena la cola general con productos de Amazon cuando baja de MIN_QUEUE_SIZE."""
-    if not status.get("amazon", True) and not force:
+    if not is_scraper_enabled("amazon", status) and not force:
         return
 
     last = _last_refill.get("amazon")
@@ -344,22 +407,25 @@ async def _check_amazon_refill(orchestrator, history: set, now: datetime, status
     if ready >= MIN_QUEUE_SIZE and not force:
         return
 
-    print(f"[AMAZON REFILL] Cola general tiene {ready} productos. Scrapeando Amazon...")
+    # Obtener el término rotativo actual para Amazon
+    keyword = get_scraping_keyword("general", "tecnologia", advance=True)
+
+    print(f"[AMAZON REFILL] Cola general tiene {ready} productos. Scrapeando Amazon con término '{keyword}'...")
     if orchestrator.telegram_bot:
         await orchestrator.telegram_bot.send_notification(
-            f"🛒 *Amazon Refill*\nCola general baja ({ready} productos). Scrapeando ofertas de Amazon..."
+            f"🛒 *Amazon Refill*\nCola general baja ({ready} productos). Scrapeando ofertas de Amazon con `{keyword}`..."
         )
 
     try:
         from scrapers.amazon_deals_linux import run as amazon_run
         notify_fn = orchestrator.telegram_bot.send_notification if orchestrator.telegram_bot else None
-        count = await amazon_run(notify_fn=notify_fn)
+        count = await amazon_run(notify_fn=notify_fn, keyword_override=keyword)
         _last_refill["amazon"] = now
 
         if orchestrator.telegram_bot:
             await orchestrator.telegram_bot.send_notification(
                 f"✅ *Amazon Refill completado*\n"
-                f"📦 {count} productos nuevos en cola general\n"
+                f"📦 {count} productos nuevos en cola general (búsqueda: `{keyword}`)\n"
                 f"🔗 Links de afiliado generados automáticamente con `?tag=`"
             )
     except Exception as e:
@@ -392,7 +458,8 @@ async def check_and_refill(orchestrator, force: bool = False) -> None:
         return
 
     for niche, cfg in NICHE_CONFIG.items():
-        if not scraper_status.get(niche, True):
+        if not is_scraper_enabled(niche, scraper_status) and not force:
+            print(f"[APIFY REFILL] Nicho '{niche}' omitido (auto-scraper desactivado).")
             continue
 
         last = _last_refill.get(niche)

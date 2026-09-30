@@ -239,13 +239,18 @@ export default function SettingsPage() {
         </div>
       </div>
       
-      {/* Scraping Config */}
+      {/* Scraping Config & Rotating Terms */}
       <div className="bg-surface-container-low border border-outline-variant rounded-xl p-4 shadow-sm">
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-start gap-3 mb-4">
           <div className="p-2 bg-primary-container/20 rounded-lg shrink-0">
-            <span className="material-symbols-outlined text-primary-container text-xl">search</span>
+            <span className="material-symbols-outlined text-primary-container text-xl">autorenew</span>
           </div>
-          <h2 className="text-base font-bold text-on-surface leading-snug">Términos de Búsqueda (Apify)</h2>
+          <div>
+            <h2 className="text-base font-bold text-on-surface leading-snug">Términos de Búsqueda y Ciclos Rotativos (ML & Amazon)</h2>
+            <p className="text-xs text-on-surface-variant mt-0.5 leading-snug">
+              Escribe uno o varios términos separados por comas. El scraper rotará automáticamente entre ellos en orden secuencial cada vez que necesite rellenar la cola.
+            </p>
+          </div>
         </div>
         
         {loadingScraping ? (
@@ -255,20 +260,71 @@ export default function SettingsPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {['general', 'bebes', 'mascotas', 'tenis', 'moda'].map(niche => (
-              <div key={niche} className="flex flex-col md:flex-row md:items-center gap-2">
-                <label className="text-sm font-label-caps uppercase text-on-surface-variant md:w-1/4">
-                  Nicho {niche}
-                </label>
-                <input 
-                  type="text" 
-                  value={scrapingConfig[niche] || ''}
-                  onChange={(e) => setScrapingConfig({...scrapingConfig, [niche]: e.target.value})}
-                  className="bg-surface-container border border-outline-variant rounded p-2 text-on-surface flex-1 focus:border-primary outline-none transition-colors"
-                  placeholder={`Ej: ${niche === 'general' ? 'tecnologia' : niche}`}
-                />
-              </div>
-            ))}
+            {['general', 'bebes', 'mascotas', 'tenis', 'moda'].map(niche => {
+              const rawValue = scrapingConfig[niche] || '';
+              const terms = rawValue.split(',').map((t: string) => t.trim()).filter(Boolean);
+              const cursorMap = scrapingConfig['_cursors'] || {};
+              const aliasMap: Record<string, string> = { bebes: 'bebes', baby: 'bebes', mascotas: 'mascotas', pets: 'mascotas' };
+              const cursorKey = aliasMap[niche] || niche;
+              const currentCursor = (cursorMap[cursorKey] || 0) % (terms.length || 1);
+              const isScraperActive = scrapersStatus[niche] !== false && (niche !== 'bebes' || scrapersStatus['baby'] !== false) && (niche !== 'mascotas' || scrapersStatus['pets'] !== false);
+
+              const placeholders: Record<string, string> = {
+                general: 'Ej: laptops gamer, monitores, herramientas dewalt, smart tv',
+                bebes: 'Ej: monitores de bebe, carriolas, juguetes estimulacion',
+                mascotas: 'Ej: camas para perro, rascadores gatos, correas',
+                tenis: 'Ej: tenis running, tenis nike, tenis jordan, tenis adidas',
+                moda: 'Ej: chamarras, vestidos casuales, playeras deportivas'
+              };
+
+              return (
+                <div key={niche} className="flex flex-col gap-1.5 p-3 bg-surface-container/50 rounded-lg border border-outline-variant/30">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-label-caps uppercase text-on-surface font-semibold">
+                      Nicho {niche}
+                    </span>
+                    {!isScraperActive && (
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded-full">
+                        ⏸️ Auto-Scraper Pausado
+                      </span>
+                    )}
+                  </div>
+                  <input 
+                    type="text" 
+                    value={rawValue}
+                    onChange={(e) => setScrapingConfig({...scrapingConfig, [niche]: e.target.value})}
+                    className="bg-surface-container border border-outline-variant rounded p-2 text-on-surface text-sm focus:border-primary outline-none transition-colors"
+                    placeholder={placeholders[niche] || 'Ej: término 1, término 2, término 3'}
+                  />
+                  {terms.length > 1 && (
+                    <div className="flex items-center gap-1.5 flex-wrap mt-1">
+                      <span className="text-[10px] uppercase text-on-surface-variant tracking-wider font-semibold mr-1">
+                        Ciclo ({terms.length} términos):
+                      </span>
+                      {terms.map((term: string, idx: number) => {
+                        const isNext = idx === currentCursor;
+                        return (
+                          <span 
+                            key={idx} 
+                            className={`text-[11px] px-2 py-0.5 rounded-md flex items-center gap-1 border ${
+                              isNext && isScraperActive
+                                ? 'bg-primary/20 text-primary border-primary/40 font-bold shadow-sm'
+                                : isNext && !isScraperActive
+                                ? 'bg-surface-container-high text-on-surface-variant border-outline-variant'
+                                : 'bg-surface-container-high text-on-surface-variant border-outline-variant/40'
+                            }`}
+                          >
+                            {isNext && isScraperActive && <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>}
+                            {term}
+                            {idx < terms.length - 1 && <span className="text-on-surface-variant/40 ml-1">→</span>}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
             
             {/* Regla de Ahorro en Pesos */}
             <div className="flex flex-col gap-3 mt-6 pt-4 border-t border-outline-variant/30">
