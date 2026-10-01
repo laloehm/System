@@ -393,6 +393,12 @@ systemctl restart amazon_bot
 
 ## 13. HISTORIAL DE CAMBIOS (Septiembre 2026)
 
+### 30-Sep-2026 — Eliminación de Pantalla y Endpoints Legacy de Apify Staging ✅
+- **`web-panel/src/app/apify/`**: Eliminada la ruta completa de la pantalla de curación manual obsoleta.
+- **`web-panel/src/components/Sidebar.tsx`**: Removido el enlace a `/apify` del menú de navegación.
+- **`api/main.py`**: Eliminados los endpoints legacy `/api/apify/products`, `/api/apify/products/{sku}/approve` y `/api/apify/products/{sku}/discard`.
+- **Archivos Locales**: Eliminados `apify_products.json`, `apify_discarded.json` y `monitor_apify.sh`.
+
 ### 30-Sep-2026 — Ciclos Rotativos Secuenciales de Scraping por Nicho (Round-Robin) ✅
 - **`core/apify_refiller.py`**:
   - `get_scraping_keyword(niche, default, advance=False)`: Implementa rotación Round-Robin secuencial basada en términos separados por coma (e.g. `laptops gamer, monitores, herramientas`).

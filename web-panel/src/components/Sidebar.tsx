@@ -12,7 +12,6 @@ export default function Sidebar() {
     { icon: 'hub', label: 'Redes', href: '/networks' },
     { icon: 'send', label: 'Publicación', href: '/publish' },
     { icon: 'schedule', label: 'Programación', href: '/scheduler' },
-    { icon: 'dataset', label: 'Apify', href: '/apify' },
     { icon: 'history', label: 'Historial', href: '/history' },
     { icon: 'delete_sweep', label: 'Descartados', href: '/discarded' },
     { icon: 'settings', label: 'Ajustes', href: '/settings' },

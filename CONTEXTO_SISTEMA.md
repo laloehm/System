@@ -715,3 +715,17 @@ Se investigó y solucionó la publicación anómala de productos con precio de o
      - Indicador visual animado pulsante en el término que se encuentra actualmente en turno.
      - Badge informativo `⏸️ Auto-Scraper Pausado` si el auto-scraper del nicho se encuentra desactivado.
 
+---
+
+### 17.13 Depuración y Eliminación de la Pantalla Legacy de Apify Staging (30 Septiembre 2026) ✅
+
+1. **Contexto:**
+   - La pantalla `/apify` y sus endpoints asociados (`/api/apify/products`, `approve`, `discard`) correspondían a un flujo histórico manual anterior al auto-refill en segundo plano.
+   - Con la consolidación del motor autónomo (`core/apify_refiller.py` y `scrapers/amazon_deals_linux.py`) que inyecta ofertas directamente a las colas activas y resuelve afiliados en Telegram, dicha vista quedó completamente obsoleta y en desuso con 0 productos.
+
+2. **Acciones de Limpieza Ejecutadas:**
+   - **Frontend:** Eliminada la ruta `web-panel/src/app/apify/` y removido el enlace del menú en `web-panel/src/components/Sidebar.tsx`.
+   - **Backend API (`api/main.py`):** Eliminados endpoints `/api/apify/products`, `/api/apify/products/{sku}/approve` y `/api/apify/products/{sku}/discard`.
+   - **Archivos de Disco:** Eliminados `apify_products.json`, `apify_discarded.json` y el script de prueba `monitor_apify.sh`.
+
+
